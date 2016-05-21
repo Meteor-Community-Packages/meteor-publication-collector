@@ -9,11 +9,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/johanbrook/publication-collector.git"
+    "url": "git+https://github.com/johanbrook/meteor-publication-collector.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/johanbrook/publication-collector/issues"
+    "url": "https://github.com/johanbrook/meteor-publication-collector/issues"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
