@@ -1,0 +1,24 @@
+{
+  "name": "publication-collector",
+  "version": "1.0.0",
+  "description": "Test a Meteor publication by collecting its output.",
+  "scripts": {
+    "test": "SERVER_TEST_REPORTER='dot' meteor test-packages --once --driver-package dispatch:mocha ./",
+    "test:dev": "TEST_WATCH=1 meteor test-packages --driver-package dispatch:mocha ./",
+    "lint": "eslint --format=node_modules/eslint-formatter-pretty ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/johanbrook/publication-collector.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/johanbrook/publication-collector/issues"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.3.13",
+    "eslint": "^2.2.0",
+    "eslint-config-lookback": "lookback/eslint-config-lookback",
+    "eslint-formatter-pretty": "^0.2.0"
+  }
+}

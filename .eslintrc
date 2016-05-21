@@ -1,0 +1,7 @@
+{
+  "extends": "lookback/meteor",
+
+  "globals": {
+    "PublicationCollector": true
+  }
+}
