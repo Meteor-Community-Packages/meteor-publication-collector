@@ -1,5 +1,7 @@
 # Publication Collector
 
+[![CircleCI](https://circleci.com/gh/johanbrook/meteor-publication-collector/tree/master.svg?style=svg)](https://circleci.com/gh/johanbrook/meteor-publication-collector/tree/master)
+
 This package makes testing publications in Meteor easier and nicer.
 
 Instead of resorting to exporting or exposing your publication functions for doing testing, this package lets you "subscribe" to a given publication and assert its returned results.
