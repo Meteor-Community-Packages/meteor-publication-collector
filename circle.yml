@@ -2,6 +2,9 @@ machine:
   node:
     version: 0.10.43
 dependencies:
+  cache_directories:
+    - "~/.meteor"
+    - "~/.npm"
   override:
     - curl https://install.meteor.com | /bin/sh
     - npm install
