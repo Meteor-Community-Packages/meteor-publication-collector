@@ -1,6 +1,6 @@
 # Publication Collector
 
-[![CircleCI](https://circleci.com/gh/johanbrook/meteor-publication-collector/tree/master.svg?style=svg)](https://circleci.com/gh/johanbrook/meteor-publication-collector/tree/master)
+[![CircleCI](https://img.shields.io/circleci/project/johanbrook/meteor-publication-collector.svg?maxAge=2592000)]()
 
 This package makes testing publications in Meteor easier and nicer.
 
