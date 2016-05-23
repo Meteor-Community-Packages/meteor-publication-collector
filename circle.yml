@@ -6,6 +6,7 @@ dependencies:
     - "~/.meteor"
     - "~/.npm"
   override:
+    - npm -g install npm@latest-2
     # -- CACHE METEOR --
     # Restore the meteor symlink
     - if [ -d ~/.meteor ]; then sudo ln -s ~/.meteor/meteor /usr/local/bin/meteor; fi
