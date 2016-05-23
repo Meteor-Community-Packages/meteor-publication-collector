@@ -1,5 +1,5 @@
 /* eslint-env mocha */
-/* global Documents, spies */
+/* global Documents, spies, Books */
 
 const { assert } = Package['practicalmeteor:chai'];
 
@@ -7,7 +7,7 @@ PublicationCollector = Package['johanbrook:publication-collector'].PublicationCo
 
 describe('PublicationCollector', () => {
 
-  beforeEach(() => {
+  afterEach(() => {
     Documents.remove({});
     _.times(10, () => Documents.insert({foo: 'bar'}));
   });
@@ -19,21 +19,44 @@ describe('PublicationCollector', () => {
 
   describe('Collect', () => {
 
-    it('should collect documents from a publication', () => {
+    it('should collect documents from a publication', (done) => {
       const collector = new PublicationCollector();
 
       collector.collect('publication', collections => {
-        assert.ok(collections.documents);
+        assert.typeOf(collections.documents, 'array');
         assert.equal(collections.documents.length, 10, 'collects 10 documents');
+        done();
       });
     });
 
-    it('should pass the correct scope to the publication', () => {
+    it('should return cursor results as a dictionary, with collection names as keys', (done) => {
+      Books.remove({});
+      Meteor.users.remove({});
+
+      _.times(5, () => Books.insert({foo: 'bar'}));
+      _.times(2, () => Meteor.users.insert({foo: 'bar'}));
+
+      const collector = new PublicationCollector();
+
+      collector.collect('publicationWithSeveralCursors', collections => {
+        assert.typeOf(collections.documents, 'array');
+        assert.typeOf(collections.books, 'array');
+        assert.typeOf(collections.users, 'array');
+        assert.equal(collections.documents.length, 10);
+        assert.equal(collections.books.length, 5);
+        assert.equal(collections.users.length, 2);
+
+        done();
+      });
+    });
+
+    it('should pass the correct scope to the publication', (done) => {
       const collector = new PublicationCollector({userId: 'foo'});
 
       collector.collect('publicationWithUser', collections => {
         assert.ok(collections.documents);
         assert.equal(collections.documents.length, 10, 'collects 10 documents');
+        done();
       });
     });
 
@@ -101,12 +124,13 @@ describe('PublicationCollector', () => {
 
   describe('_generateResponse', () => {
 
-    it('should generate a response with collection names as keys', () => {
+    it('should generate a response with collection names as keys', (done) => {
       const collector = new PublicationCollector();
 
       collector.collect('publication', collections => {
         assert.equal(Object.keys(collections).length, 1);
         assert.equal(Object.keys(collections)[0], 'documents');
+        done();
       });
     });
   });
