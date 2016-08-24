@@ -13,7 +13,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
     // Object where the keys are collection names, and then the keys are _ids
     this.responseData = {};
-
+    this.unblock = () => {};
     this.userId = context.userId;
   }
 
