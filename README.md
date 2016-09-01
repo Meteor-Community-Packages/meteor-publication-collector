@@ -18,13 +18,14 @@ meteor add johanbrook:publication-collector
 // In a typical BDD style test suite:
 
 describe('Publication', function() {
-  if('should publish 10 documents', function() {
+  it('should publish 10 documents', function(done) {
     // Pass user context in constructor.
     const collector = new PublicationCollector({userId: Random.id()});
 
     // Collect documents from a subscription with 'collect(name, [arguments...], [callback])'
     collector.collect('publicationName', 'someArgument', (collections) => {
       assert.equal(collections.myCollection.length, 10);
+      done();
     });
   });
 });
