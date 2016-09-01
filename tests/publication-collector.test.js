@@ -9,6 +9,7 @@ describe('PublicationCollector', () => {
 
   afterEach(() => {
     Documents.remove({});
+    Documents.find().fetch();
     _.times(10, () => Documents.insert({foo: 'bar'}));
   });
 
@@ -46,6 +47,19 @@ describe('PublicationCollector', () => {
         assert.equal(collections.books.length, 5);
         assert.equal(collections.users.length, 2);
 
+        done();
+      });
+    });
+
+    it('should return an empty array for when there are no documents', (done) => {
+      Documents.remove({});
+      assert.equal(Documents.find().fetch().length, 0);
+
+      const collector = new PublicationCollector();
+
+      collector.collect('publication', collections => {
+        assert.typeOf(collections.documents, 'array');
+        assert.equal(collections.documents.length, 0);
         done();
       });
     });
