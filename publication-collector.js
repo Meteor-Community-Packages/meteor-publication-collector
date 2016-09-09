@@ -15,26 +15,32 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     this.responseData = {};
     this.unblock = () => {};
     this.userId = context.userId;
+    this.observeHandles = [];
   }
 
   collect(name, ...args) {
-    if (_.isFunction(args[args.length - 1])) {
-      this.on('ready', args.pop());
-    }
-
     const handler = Meteor.server.publish_handlers[name];
     const result = handler.call(this, ...args);
+
+    if (_.isFunction(args[args.length - 1])) {
+      const callback = args.pop();
+      this.on('ready', collections => {
+        callback(collections);
+        this.observeHandles.forEach(handle => handle.stop());
+      });
+    }
 
     // TODO -- we should check that result has _publishCursor? What does _runHandler do?
     if (result) {
       // array-ize
-      [].concat(result).forEach(cur => {
+      this.observeHandles = [].concat(result).map(cur => {
         if (cur._cursorDescription && cur._cursorDescription.collectionName) {
           this._ensureCollectionInRes(cur._cursorDescription.collectionName);
         }
 
-        cur._publishCursor(this);
+        return cur._publishCursor(this);
       });
+
       this.ready();
     }
   }
