@@ -53,6 +53,14 @@ This project was originally a part of MDG's [Todos](https://github.com/meteor/to
 
 Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-subscription.js.
 
+## Releases
+
+- `1.0.1`
+  - Fixes inconsistent results from publication collector (thanks @PhilippSpo in [#2](https://github.com/johanbrook/meteor-publication-collector/issues/2)).
+  - Return an empty array if there are no returned documents from a publication ([#5](https://github.com/johanbrook/meteor-publication-collector/issues/5)).
+  - Accept `Mongo.ObjectID` as `_id` attribute ([#8](https://github.com/johanbrook/meteor-publication-collector/issues/8)).
+- `1.0.0` - First public release.
+
 ## To do
 
 - [ ] Make tests pass.

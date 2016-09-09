@@ -1,6 +1,6 @@
 {
   "name": "publication-collector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Test a Meteor publication by collecting its output.",
   "scripts": {
     "pretest": "npm run lint --silent",
