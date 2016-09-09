@@ -28,7 +28,13 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     // TODO -- we should check that result has _publishCursor? What does _runHandler do?
     if (result) {
       // array-ize
-      [].concat(result).forEach(cur => cur._publishCursor(this));
+      [].concat(result).forEach(cur => {
+        if (cur._cursorDescription && cur._cursorDescription.collectionName) {
+          this._ensureCollectionInRes(cur._cursorDescription.collectionName);
+        }
+
+        cur._publishCursor(this);
+      });
       this.ready();
     }
   }
