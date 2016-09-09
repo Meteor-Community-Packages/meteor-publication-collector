@@ -1,7 +1,8 @@
 /* eslint-env mocha */
 /* global Documents, spies, Books */
 
-const { assert } = Package['practicalmeteor:chai'];
+import { assert } from 'meteor/practicalmeteor:chai';
+import { Mongo } from 'meteor/mongo';
 
 PublicationCollector = Package['johanbrook:publication-collector'].PublicationCollector;
 
@@ -26,6 +27,19 @@ describe('PublicationCollector', () => {
       collector.collect('publication', collections => {
         assert.typeOf(collections.documents, 'array');
         assert.equal(collections.documents.length, 10, 'collects 10 documents');
+        done();
+      });
+    });
+
+    it('should allow a ObjectID as _id', done => {
+      Documents.remove({});
+      Documents.insert({_id: new Mongo.ObjectID()});
+
+      const collector = new PublicationCollector();
+
+      collector.collect('publication', collections => {
+        assert.typeOf(collections.documents, 'array');
+        assert.equal(collections.documents.length, 1);
         done();
       });
     });
