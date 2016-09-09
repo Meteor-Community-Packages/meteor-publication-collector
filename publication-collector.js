@@ -1,4 +1,7 @@
-const EventEmitter = Npm.require('events').EventEmitter;
+import { Mongo } from 'meteor/mongo';
+import { EventEmitter } from 'events';
+
+const validMongoId = Match.OneOf(String, Mongo.ObjectID);
 
 /*
   This class describes something like Subscription in
@@ -47,7 +50,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
   added(collection, id, fields) {
     check(collection, String);
-    check(id, String);
+    check(id, validMongoId);
 
     this._ensureCollectionInRes(collection);
 
@@ -58,7 +61,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
   changed(collection, id, fields) {
     check(collection, String);
-    check(id, String);
+    check(id, validMongoId);
 
     this._ensureCollectionInRes(collection);
 
@@ -76,7 +79,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
   removed(collection, id) {
     check(collection, String);
-    check(id, String);
+    check(id, validMongoId);
 
     this._ensureCollectionInRes(collection);
 

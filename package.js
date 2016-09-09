@@ -15,6 +15,7 @@ Package.onUse(function(api) {
   api.use([
     'ecmascript',
     'underscore',
+    'mongo',
     'check'
   ], 'server');
 
