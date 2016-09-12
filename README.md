@@ -55,6 +55,7 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 
 ## Releases
 
+- `1.0.2` - Fix bug where `ready()` wasn't called if there were no results from a publication handler.
 - `1.0.1`
   - Fixes inconsistent results from publication collector (thanks @PhilippSpo in [#2](https://github.com/johanbrook/meteor-publication-collector/issues/2)).
   - Return an empty array if there are no returned documents from a publication ([#5](https://github.com/johanbrook/meteor-publication-collector/issues/5)).
