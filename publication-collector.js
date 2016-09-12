@@ -43,9 +43,9 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
         return cur._publishCursor(this);
       });
-
-      this.ready();
     }
+
+    this.ready();
   }
 
   added(collection, id, fields) {
