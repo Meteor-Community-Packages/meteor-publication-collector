@@ -55,6 +55,7 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 
 ## Releases
 
+- `1.0.3` - Fix compatibility with `peerlibrary:reactive-publish` package (bug #3), fixed in [#10](https://github.com/johanbrook/meteor-publication-collector/pull/10). Thanks [@hexsprite](https://github.com/hexsprite)!
 - `1.0.2` - Fix bug where `ready()` wasn't called if there were no results from a publication handler.
 - `1.0.1`
   - Fixes inconsistent results from publication collector (thanks @PhilippSpo in [#2](https://github.com/johanbrook/meteor-publication-collector/issues/2)).
@@ -64,6 +65,6 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 
 ## To do
 
-- [ ] Make tests pass.
+- [x] Make tests pass.
 - [ ] More docs.
 - [ ] Support Promises.
