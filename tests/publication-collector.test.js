@@ -120,7 +120,7 @@ describe('PublicationCollector', () => {
       const doc = {_id: id, foo: 'bar'};
       collector.added('documents', doc._id, doc);
 
-      assert.deepEqual(collector.responseData.documents[id], doc);
+      assert.deepEqual(collector._documents.documents[id], doc);
     });
   });
 
@@ -133,8 +133,8 @@ describe('PublicationCollector', () => {
       collector.collect('publication');
       collector.removed('documents', doc._id);
 
-      assert.notOk(collector.responseData.documents[doc._id]);
-      assert.equal(Object.keys(collector.responseData.documents).length, 9);
+      assert.notOk(collector._documents.documents[doc._id]);
+      assert.equal(Object.keys(collector._documents.documents).length, 9);
     });
   });
 

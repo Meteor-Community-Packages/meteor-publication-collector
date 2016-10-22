@@ -1,4 +1,5 @@
 import { Mongo } from 'meteor/mongo';
+import { MongoID } from 'meteor/mongo-id';
 import { EventEmitter } from 'events';
 
 const validMongoId = Match.OneOf(String, Mongo.ObjectID);
@@ -15,10 +16,14 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     check(context.userId, Match.Optional(String));
 
     // Object where the keys are collection names, and then the keys are _ids
-    this.responseData = {};
+    this._documents = {};
     this.unblock = () => {};
     this.userId = context.userId;
     this.observeHandles = [];
+    this._idFilter = {
+      idStringify: MongoID.idStringify,
+      idParse: MongoID.idParse
+    };
   }
 
   collect(name, ...args) {
@@ -56,7 +61,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
     // Make sure to ignore the _id in fields
     const addedDocument = _.extend({_id: id}, _.omit(fields, '_id'));
-    this.responseData[collection][id] = addedDocument;
+    this._documents[collection][id] = addedDocument;
   }
 
   changed(collection, id, fields) {
@@ -65,7 +70,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
     this._ensureCollectionInRes(collection);
 
-    const existingDocument = this.responseData[collection][id];
+    const existingDocument = this._documents[collection][id];
     const fieldsNoId = _.omit(fields, '_id');
     _.extend(existingDocument, fieldsNoId);
 
@@ -83,10 +88,10 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
     this._ensureCollectionInRes(collection);
 
-    delete this.responseData[collection][id];
+    delete this._documents[collection][id];
 
-    if (_.isEmpty(this.responseData[collection])) {
-      delete this.responseData[collection];
+    if (_.isEmpty(this._documents[collection])) {
+      delete this._documents[collection];
     }
   }
 
@@ -107,13 +112,13 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
   }
 
   _ensureCollectionInRes(collection) {
-    this.responseData[collection] = this.responseData[collection] || {};
+    this._documents[collection] = this._documents[collection] || {};
   }
 
   _generateResponse() {
     const output = {};
 
-    _.forEach(this.responseData, (documents, collectionName) => {
+    _.forEach(this._documents, (documents, collectionName) => {
       output[collectionName] = _.values(documents);
     });
 
