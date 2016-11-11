@@ -72,14 +72,17 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
     const existingDocument = this._documents[collection][id];
     const fieldsNoId = _.omit(fields, '_id');
-    _.extend(existingDocument, fieldsNoId);
 
-    // Delete all keys that were undefined in fields (except _id)
-    _.forEach(fields, (value, key) => {
-      if (value === undefined) {
-        delete existingDocument[key];
-      }
-    });
+    if (existingDocument) {
+      _.extend(existingDocument, fieldsNoId);
+
+      // Delete all keys that were undefined in fields (except _id)
+      _.forEach(fields, (value, key) => {
+        if (value === undefined) {
+          delete existingDocument[key];
+        }
+      });
+    }
   }
 
   removed(collection, id) {
