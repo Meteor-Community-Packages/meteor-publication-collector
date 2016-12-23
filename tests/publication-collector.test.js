@@ -109,6 +109,18 @@ describe('PublicationCollector', () => {
 
       collector.collect('publicationWithArgs', 'foo', 'bar');
     });
+
+    it('should support optional publication arguments', (done) => {
+      Meteor.publish('publicationWithOptionalArg', function(arg1 = 'foo') {
+        assert.equal(arg1, 'foo');
+        this.ready();
+        done();
+      });
+
+      const collector = new PublicationCollector();
+
+      collector.collect('publicationWithOptionalArg', function(){});
+    });
   });
 
   describe('Added', () => {
