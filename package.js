@@ -30,7 +30,7 @@ Package.onTest(function(api) {
     'mongo',
     'random',
     'dispatch:mocha',
-    'accounts-password',
+    'accounts-password@1.3.1',
     'practicalmeteor:sinon',
     'practicalmeteor:chai@2.1.0_1',
     'underscore'
