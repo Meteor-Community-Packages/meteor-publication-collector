@@ -3,7 +3,7 @@
   "version": "1.0.4",
   "description": "Test a Meteor publication by collecting its output.",
   "scripts": {
-    "test": "SERVER_TEST_REPORTER='dot' meteor test-packages --release 1.3.5.1 --once --driver-package dispatch:mocha ./",
+    "test": "SERVER_TEST_REPORTER='dot' meteor test-packages --once --driver-package dispatch:mocha ./",
     "test:dev": "TEST_WATCH=1 meteor test-packages --driver-package dispatch:mocha ./",
     "lint": "eslint --format=node_modules/eslint-formatter-pretty ."
   },
