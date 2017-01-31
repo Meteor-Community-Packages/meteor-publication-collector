@@ -19,7 +19,6 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     this._documents = {};
     this.unblock = () => {};
     this.userId = context.userId;
-    this.observeHandles = [];
     this._idFilter = {
       idStringify: MongoID.idStringify,
       idParse: MongoID.idParse
@@ -83,9 +82,9 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
       try {
         // for each cursor we call _publishCursor method which starts observing the cursor and
         // publishes the results.
-        this.observeHandles = cursors.map((cur) => {
+        cursors.forEach((cur) => {
           this._ensureCollectionInRes(cur._getCollectionName());
-          return cur._publishCursor(this);
+          cur._publishCursor(this);
         });
       } catch (e) {
         this.error(e);
@@ -159,9 +158,6 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
   stop() {
     // Synchronously calls each of the listeners registered for the "stop" event
     this.emit('stop');
-    // XXX: not necessary since we process "onStop" calls
-    // Tears down all established live queries
-    // this.observeHandles.forEach(handle => handle.stop());
   }
 
   error(error) {
