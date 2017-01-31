@@ -12,6 +12,13 @@ Meteor.publish('publicationWithSeveralCursors', function() {
   return [Documents.find(), Books.find(), Meteor.users.find()];
 });
 
+Meteor.publish('publicationUsingLowLevelACRInterface', function() {
+  const count = Documents.find().count();
+
+  this.added('counts', 'Documents', { count });
+  this.ready();
+});
+
 Meteor.publish('publicationWithUser', function() {
 
   if (!this.userId || this.userId !== 'foo') {

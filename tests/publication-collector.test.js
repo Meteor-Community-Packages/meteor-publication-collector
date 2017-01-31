@@ -31,7 +31,18 @@ describe('PublicationCollector', () => {
       });
     });
 
-    it('should allow a ObjectID as _id', done => {
+    it('should collect documents from a publication using low-level added/changed/removed interface', (done) => {
+      const collector = new PublicationCollector();
+
+      collector.collect('publicationUsingLowLevelACRInterface', collections => {
+        assert.typeOf(collections.counts, 'array');
+        assert.equal(collections.counts.length, 1, 'collects 1 document');
+        assert.sameDeepMembers(collections.counts, [{ _id: 'Documents', count: 10 }]);
+        done();
+      });
+    });
+
+    it('should allow a ObjectID as _id', (done) => {
       Documents.remove({});
       Documents.insert({_id: new Mongo.ObjectID()});
 
@@ -119,7 +130,7 @@ describe('PublicationCollector', () => {
 
       const collector = new PublicationCollector();
 
-      collector.collect('publicationWithOptionalArg', function(){});
+      collector.collect('publicationWithOptionalArg');
     });
   });
 
