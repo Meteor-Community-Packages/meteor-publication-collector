@@ -19,7 +19,6 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     this._documents = {};
     this.unblock = () => {};
     this.userId = context.userId;
-    this.observeHandles = [];
     this._idFilter = {
       idStringify: MongoID.idStringify,
       idParse: MongoID.idParse
@@ -27,30 +26,78 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
   }
 
   collect(name, ...args) {
+    let callback;
+    // extracts optional callback from latest argument
     if (_.isFunction(args[args.length - 1])) {
-      const callback = args.pop();
-      this.on('ready', collections => {
-        callback(collections);
-        this.observeHandles.forEach(handle => handle.stop());
-      });
+      callback = args.pop();
     }
+    // adds a one time listener function for the "ready" event
+    this.once('ready', (collections) => {
+      if (_.isFunction(callback)) {
+        callback(collections);
+      }
+      // immediately stop the subscription
+      this.stop();
+    });
 
     const handler = Meteor.server.publish_handlers[name];
     const result = handler.call(this, ...args);
 
-    // TODO -- we should check that result has _publishCursor? What does _runHandler do?
-    if (result) {
-      // array-ize
-      this.observeHandles = [].concat(result).map(cur => {
-        if (cur._cursorDescription && cur._cursorDescription.collectionName) {
-          this._ensureCollectionInRes(cur._cursorDescription.collectionName);
-        }
+    this._publishHandlerResult(result);
+  }
 
-        return cur._publishCursor(this);
-      });
+  /**
+   * Reproduces "_publishHandlerResult" processing
+   * @see {@link https://github.com/meteor/meteor/blob/master/packages/ddp-server/livedata_server.js#L1045}
+   */
+  _publishHandlerResult(res) {
+    const cursors = [];
+
+    // publication handlers can return a collection cursor, an array of cursors or nothing.
+    if (this._isCursor(res)) {
+      cursors.push(res);
+    } else if (Array.isArray(res)) {
+      // check all the elements are cursors
+      const areCursors = res.reduce((valid, cur) => valid && this._isCursor(cur), true);
+      if (!areCursors) {
+        this.error(new Error('Publish function returned an array of non-Cursors'));
+        return;
+      }
+      // find duplicate collection names
+      const collectionNames = {};
+      for (let i = 0; i < res.length; ++i) {
+        const collectionName = res[i]._getCollectionName();
+        if ({}.hasOwnProperty.call(collectionNames, collectionName)) {
+          this.error(new Error(
+            `Publish function returned multiple cursors for collection ${collectionName}`
+          ));
+          return;
+        }
+        collectionNames[collectionName] = true;
+        cursors.push(res[i]);
+      }
     }
 
-    this.ready();
+    if (cursors.length > 0) {
+      try {
+        // for each cursor we call _publishCursor method which starts observing the cursor and
+        // publishes the results.
+        cursors.forEach((cur) => {
+          this._ensureCollectionInRes(cur._getCollectionName());
+          cur._publishCursor(this);
+        });
+      } catch (e) {
+        this.error(e);
+        return;
+      }
+      // mark subscription as ready (_publishCursor does NOT call ready())
+      this.ready();
+    } else if (res) {
+      // truthy values other than cursors or arrays are probably a
+      // user mistake (possible returning a Mongo document via, say,
+      // `coll.findOne()`).
+      this.error(new Error('Publish function can only return a Cursor or an array of Cursors'));
+    }
   }
 
   added(collection, id, fields) {
@@ -99,19 +146,26 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
   }
 
   ready() {
+    // Synchronously calls each of the listeners registered for the "ready" event
     this.emit('ready', this._generateResponse());
   }
 
-  onStop() {
-    // no-op
+  onStop(callback) {
+    // Adds a one time listener function for the "stop" event
+    this.once('stop', callback);
   }
 
   stop() {
-    // no-op
+    // Synchronously calls each of the listeners registered for the "stop" event
+    this.emit('stop');
   }
 
   error(error) {
     throw error;
+  }
+
+  _isCursor(c) {
+    return c && c._publishCursor;
   }
 
   _ensureCollectionInRes(collection) {
