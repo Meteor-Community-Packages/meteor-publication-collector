@@ -29,9 +29,9 @@ geojson-utils@1.0.10
 html-tools@1.0.10
 htmljs@1.0.10
 id-map@1.0.9
-johanbrook:publication-collector@1.0.5
+johanbrook:publication-collector@1.0.6
 jquery@1.11.9
-local-test:johanbrook:publication-collector@1.0.5
+local-test:johanbrook:publication-collector@1.0.6
 localstorage@1.0.12
 logging@1.1.16
 meteor@1.6.0
