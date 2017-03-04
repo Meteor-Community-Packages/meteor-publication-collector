@@ -23,6 +23,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
       idStringify: MongoID.idStringify,
       idParse: MongoID.idParse
     };
+    this._isDeactivated = () => {};
   }
 
   collect(name, ...args) {
