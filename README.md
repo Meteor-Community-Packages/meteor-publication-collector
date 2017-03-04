@@ -55,6 +55,7 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 
 ## Releases
 
+- `1.0.7` - Fix compatibility with `peerlibrary:reactive-publish`'s `_isDeactivated` function in publications ([#20](https://github.com/johanbrook/meteor-publication-collector/pull/23), thanks @jaskinn!).
 - `1.0.6` - Fix an issue with "ready" event being emitted more than once ([#16](https://github.com/johanbrook/meteor-publication-collector/pull/16)). Thanks @nkahnfr!
 - `1.0.5` - Fix an issue when publish handlers are using default arguments ([#15](https://github.com/johanbrook/meteor-publication-collector/pull/15)). Thanks @dmihal!
 - `1.0.4` - Don't try to operate on a document that doesn't exist in `changed` callback. Thanks @zenweasel, from [#13](https://github.com/johanbrook/meteor-publication-collector/pull/13)!
