@@ -6,6 +6,8 @@ This package makes testing publications in Meteor easier and nicer.
 
 Instead of resorting to exporting or exposing your publication functions for doing testing, this package lets you "subscribe" to a given publication and assert its returned results.
 
+**This package works on the server side and must be only imported on the server side.** 
+
 ## Installation
 
 ```
