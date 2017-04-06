@@ -6,7 +6,21 @@ This package makes testing publications in Meteor easier and nicer.
 
 Instead of resorting to exporting or exposing your publication functions for doing testing, this package lets you "subscribe" to a given publication and assert its returned results.
 
-**This package works on the server side and must be only imported on the server side.** 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Publication Collector](#publication-collector)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [PublicationCollector](#publicationcollector)
+    - [PublicationCollector.collect](#publicationcollectorcollect)
+  - [Development](#development)
+    - [Tests](#tests)
+  - [History](#history)
+  - [Releases](#releases)
+  - [To do](#to-do)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
 
@@ -16,16 +30,18 @@ meteor add johanbrook:publication-collector
 
 ## Usage
 
+This package is server-only and can't be imported on the client.
+
 ```js
-// In a typical BDD style test suite:
+// server/myPublication.test.js
 
-describe('Publication', function() {
+import { PublicationCollector } from 'meteor/johanbrook:publication-collector';
+
+describe('myPublication', function() {
   it('should publish 10 documents', function(done) {
-    // Pass user context in constructor.
-    const collector = new PublicationCollector({userId: Random.id()});
+    const collector = new PublicationCollector({ userId: Random.id() });
 
-    // Collect documents from a subscription with 'collect(name, [arguments...], [callback])'
-    collector.collect('publicationName', 'someArgument', (collections) => {
+    collector.collect('myPublication', firstPublicationArg, secondPublicationArg, (collections) => {
       assert.equal(collections.myCollection.length, 10);
       done();
     });
@@ -33,9 +49,43 @@ describe('Publication', function() {
 });
 ```
 
+### PublicationCollector
+
+```js
+const collector = new PublicationCollector( opts );
+```
+
+`opts` may have the following attributes:
+- `userId`: Add a `this.userId` to the publication's context
+- `delayInMs`: By default, `collect` callbacks are called when the publication is ready. If you use this option, the callbacks will be called `delayInMs` milliseconds after the publication is ready.
+
 An instance of `PublicationCollector` also is an `EventEmitter`, and emits a `ready` event when the publication is marked as ready.
 
-## Tests
+### PublicationCollector.collect
+
+```js
+collector.collect( publicationName, publicationArgs..., callback);
+```
+
+- `publicationName (String)`:  the name of the publication (String)
+- `publicationArgs`: zero or more arguments to the publication
+- `callback (Function)`: The function to be called when the publication is ready. The function will be provided with a `collections` object containing an array for each collection that the publication published.
+
+```js
+collector.collect('myPublication', firstPublicationArg, secondPublicationArg, (collections) => {
+  assert.equal(collections.myCollection.length, 10);
+});
+```
+
+## Development
+
+```
+npm install
+```
+
+Follow `.eslintrc`
+
+### Tests
 
 Run tests once with
 
@@ -72,5 +122,5 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 ## To do
 
 - [x] Make tests pass.
-- [ ] More docs.
+- [x] More docs.
 - [ ] Support Promises.

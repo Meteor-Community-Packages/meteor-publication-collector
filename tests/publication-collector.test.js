@@ -42,6 +42,17 @@ describe('PublicationCollector', () => {
       });
     });
 
+    it("should collect documents from a publication that makes changes after it's ready", done => {
+      const collector = new PublicationCollector({ delayInMs: 200 }); // add happens after 100ms
+
+      collector.collect('publicationWithPostReadyChanges', collections => {
+        assert.typeOf(collections.counts, 'array');
+        assert.equal(collections.counts.length, 1, 'collects 1 document');
+        assert.sameDeepMembers(collections.counts, [{ _id: 'Documents', count: 10 }]);
+        done();
+      });
+    });
+
     it('should allow a ObjectID as _id', (done) => {
       Documents.remove({});
       Documents.insert({_id: new Mongo.ObjectID()});

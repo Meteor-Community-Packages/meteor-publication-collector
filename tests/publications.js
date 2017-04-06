@@ -19,6 +19,16 @@ Meteor.publish('publicationUsingLowLevelACRInterface', function() {
   this.ready();
 });
 
+Meteor.publish('publicationWithPostReadyChanges', function() {
+  const count = Documents.find().count();
+
+  this.ready();
+
+  Meteor.setTimeout(() => {
+    this.added('counts', 'Documents', { count });
+  }, 100);
+});
+
 Meteor.publish('publicationWithUser', function() {
 
   if (!this.userId || this.userId !== 'foo') {
