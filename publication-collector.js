@@ -28,7 +28,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     };
     this._isDeactivated = () => {};
 
-    this.delayInMs = delayInMs;
+    this.delayInMs = opts.delayInMs;
   }
 
   collect(name, ...args) {
