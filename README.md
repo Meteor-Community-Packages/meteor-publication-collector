@@ -52,7 +52,7 @@ describe('myPublication', function() {
 ### PublicationCollector
 
 ```js
-const collector = new PublicationCollector( opts );
+const collector = new PublicationCollector(opts);
 ```
 
 `opts` may have the following attributes:
@@ -64,12 +64,12 @@ An instance of `PublicationCollector` also is an `EventEmitter`, and emits a `re
 ### PublicationCollector.collect
 
 ```js
-collector.collect( publicationName, publicationArgs..., callback);
+collector.collect(publicationName, publicationArgs..., callback);
 ```
 
 - `publicationName (String)`:  the name of the publication (String)
 - `publicationArgs`: zero or more arguments to the publication
-- `callback (Function)`: The function to be called when the publication is ready. The function will be provided with a `collections` object containing an array for each collection that the publication published.
+- `callback (Function)`: The function to be called when the publication is ready. The function will be provided with a `collections` object containing key:value pairs where the key is the name of a collection that the publication published and the value is an array of the documents that were published in that collection.
 
 ```js
 collector.collect('myPublication', firstPublicationArg, secondPublicationArg, (collections) => {

@@ -51,11 +51,11 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     this.once('ready', (collections) => {
       if (this.delayInMs) {
         Meteor.setTimeout(() => {
-          completeCollecting(this._generateResponse())
+          completeCollecting(this._generateResponse());
         }, this.delayInMs);
       } else {
         // immediately complete
-        completeCollecting(collections)
+        completeCollecting(collections);
       }
     });
 
