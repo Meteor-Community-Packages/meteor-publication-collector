@@ -51,7 +51,9 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     this.once('ready', (collections) => {
       if (this.delayInMs) {
         Meteor.setTimeout(() => {
-          completeCollecting(this._generateResponse());
+          // collections is out of date, so we need to regenerate
+          collections = this._generateResponse();
+          completeCollecting(collections);
         }, this.delayInMs);
       } else {
         // immediately complete
