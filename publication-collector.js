@@ -1,3 +1,5 @@
+import { Meteor } from 'meteor/meteor';
+import { Match } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
 import { MongoID } from 'meteor/mongo-id';
 import { EventEmitter } from 'events';
@@ -11,19 +13,22 @@ const validMongoId = Match.OneOf(String, Mongo.ObjectID);
 */
 PublicationCollector = class PublicationCollector extends EventEmitter {
 
-  constructor(context = {}) {
+  constructor(opts = {}) {
     super();
-    check(context.userId, Match.Optional(String));
+    check(opts.userId, Match.Optional(String));
+    check(opts.delayInMs, Match.Optional(Match.Integer));
 
     // Object where the keys are collection names, and then the keys are _ids
     this._documents = {};
     this.unblock = () => {};
-    this.userId = context.userId;
+    this.userId = opts.userId;
     this._idFilter = {
       idStringify: MongoID.idStringify,
       idParse: MongoID.idParse
     };
     this._isDeactivated = () => {};
+
+    this.delayInMs = opts.delayInMs;
   }
 
   collect(name, ...args) {
@@ -32,13 +37,28 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     if (_.isFunction(args[args.length - 1])) {
       callback = args.pop();
     }
-    // adds a one time listener function for the "ready" event
-    this.once('ready', (collections) => {
+
+    const completeCollecting = (collections) => {
       if (_.isFunction(callback)) {
         callback(collections);
       }
-      // immediately stop the subscription
+
+      // stop the subscription
       this.stop();
+    };
+
+    // adds a one time listener function for the "ready" event
+    this.once('ready', (collections) => {
+      if (this.delayInMs) {
+        Meteor.setTimeout(() => {
+          // collections is out of date, so we need to regenerate
+          collections = this._generateResponse();
+          completeCollecting(collections);
+        }, this.delayInMs);
+      } else {
+        // immediately complete
+        completeCollecting(collections);
+      }
     });
 
     const handler = Meteor.server.publish_handlers[name];
