@@ -111,14 +111,16 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
         this.error(e);
         return;
       }
-      // mark subscription as ready (_publishCursor does NOT call ready())
-      this.ready();
-    } else if (res) {
+
+    } else if (res && !Array.isArray(res)) {
       // truthy values other than cursors or arrays are probably a
       // user mistake (possible returning a Mongo document via, say,
       // `coll.findOne()`).
       this.error(new Error('Publish function can only return a Cursor or an array of Cursors'));
     }
+
+    // mark subscription as ready (_publishCursor does NOT call ready())
+    this.ready();
   }
 
   added(collection, id, fields) {
