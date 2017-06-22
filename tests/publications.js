@@ -15,8 +15,10 @@ Meteor.publish('publicationWithSeveralCursors', function() {
 Meteor.publish('publicationUsingLowLevelACRInterface', function() {
   const count = Documents.find().count();
 
-  this.added('counts', 'Documents', { count });
-  this.ready();
+  Meteor.setTimeout(() => {
+    this.added('counts', 'Documents', { count });
+    this.ready();
+  }, 100);
 });
 
 Meteor.publish('publicationWithPostReadyChanges', function() {

@@ -97,6 +97,11 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
         collectionNames[collectionName] = true;
         cursors.push(res[i]);
       }
+    } else if (res) {
+      // truthy values other than cursors or arrays are probably a
+      // user mistake (possible returning a Mongo document via, say,
+      // `coll.findOne()`).
+      this.error(new Error('Publish function can only return a Cursor or an array of Cursors'));
     }
 
     if (cursors.length > 0) {
@@ -112,15 +117,9 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
         return;
       }
 
-    } else if (res && !Array.isArray(res)) {
-      // truthy values other than cursors or arrays are probably a
-      // user mistake (possible returning a Mongo document via, say,
-      // `coll.findOne()`).
-      this.error(new Error('Publish function can only return a Cursor or an array of Cursors'));
+      // mark subscription as ready (_publishCursor does NOT call ready())
+      this.ready();
     }
-
-    // mark subscription as ready (_publishCursor does NOT call ready())
-    this.ready();
   }
 
   added(collection, id, fields) {

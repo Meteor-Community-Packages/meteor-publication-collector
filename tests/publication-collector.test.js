@@ -2,6 +2,7 @@
 /* global Documents, spies, Books */
 
 import { assert } from 'meteor/practicalmeteor:chai';
+import { sinon } from 'meteor/practicalmeteor:sinon';
 import { Mongo } from 'meteor/mongo';
 
 PublicationCollector = Package['johanbrook:publication-collector'].PublicationCollector;
@@ -42,7 +43,7 @@ describe('PublicationCollector', () => {
       });
     });
 
-    it("should collect documents from a publication that makes changes after it's ready", done => {
+    it("should collect documents from a publication that makes changes after it's ready", (done) => {
       const collector = new PublicationCollector({ delayInMs: 200 }); // add happens after 100ms
 
       collector.collect('publicationWithPostReadyChanges', collections => {
@@ -142,6 +143,34 @@ describe('PublicationCollector', () => {
       const collector = new PublicationCollector();
 
       collector.collect('publicationWithOptionalArg');
+    });
+
+    it('should support publications that are returning nothing', (done) => {
+      Meteor.publish('publicationReturningNothing', () => {
+        return [];
+      });
+
+      const readyCallback = sinon.spy();
+      const collector = new PublicationCollector();
+
+      collector.collect('publicationReturningNothing', readyCallback);
+      assert.isTrue(readyCallback.notCalled);
+
+      done();
+    });
+
+    it('throws an error if a publication returns truthy values other than cursors or arrays', (done) => {
+      Meteor.publish('publicationReturningTruthyValue', () => {
+        return true;
+      });
+
+      const collector = new PublicationCollector();
+
+      assert.throws(() => {
+        collector.collect('publicationReturningTruthyValue');
+      }, /Publish function can only return a Cursor or an array of Cursors/);
+
+      done();
     });
   });
 
