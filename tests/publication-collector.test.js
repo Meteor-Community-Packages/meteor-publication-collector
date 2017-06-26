@@ -173,20 +173,25 @@ describe('PublicationCollector', () => {
       done();
     });
 
-    it('stops the publication if an error is thrown in the callback', (done) => {
+    it('stops the publication if an error is thrown in the callback', () => {
       const collector = new PublicationCollector();
 
+      let stopMethodCalled = false;
       collector.onStop(() => {
-        done();
+        stopMethodCalled = true;
       });
 
+      let exception;
       try {
         collector.collect('publication', collections => {
-          const foo = collections.nothing.length;
+          throw new Error('Test');
         });
       } catch (e) {
-        // Exception is not important here.
+        exception = e;
       }
+
+      assert.isTrue(stopMethodCalled);
+      assert.instanceOf(exception, Error);
     });
   });
 
