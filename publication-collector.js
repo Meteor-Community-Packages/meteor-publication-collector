@@ -39,12 +39,14 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     }
 
     const completeCollecting = (collections) => {
-      if (_.isFunction(callback)) {
-        callback(collections);
+      try {
+        if (_.isFunction(callback)) {
+          callback(collections);
+        }
+      } finally {
+        // stop the subscription
+        this.stop();
       }
-
-      // stop the subscription
-      this.stop();
     };
 
     // adds a one time listener function for the "ready" event

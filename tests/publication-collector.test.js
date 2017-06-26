@@ -172,6 +172,22 @@ describe('PublicationCollector', () => {
 
       done();
     });
+
+    it('stops the publication if an error is thrown in the callback', (done) => {
+      const collector = new PublicationCollector();
+
+      collector.onStop(() => {
+        done();
+      });
+
+      try {
+        collector.collect('publication', collections => {
+          const foo = collections.nothing.length;
+        });
+      } catch (e) {
+        // Exception is not important here.
+      }
+    });
   });
 
   describe('Added', () => {
