@@ -107,6 +107,8 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 
 ## Releases
 
+- `1.0.9` - Fix bug in 1.0.8 regarding empty array return. Thanks @nkahnfr !
+- `1.0.8` - Fix support for publications returning nothing (an empty array). Thanks @ziedmahdi !
 - `1.0.7` - Fix compatibility with `peerlibrary:reactive-publish`'s `_isDeactivated` function in publications ([#20](https://github.com/johanbrook/meteor-publication-collector/pull/23), thanks @jaskinn!).
 - `1.0.6` - Fix an issue with "ready" event being emitted more than once ([#16](https://github.com/johanbrook/meteor-publication-collector/pull/16)). Thanks @nkahnfr!
 - `1.0.5` - Fix an issue when publish handlers are using default arguments ([#15](https://github.com/johanbrook/meteor-publication-collector/pull/15)). Thanks @dmihal!
