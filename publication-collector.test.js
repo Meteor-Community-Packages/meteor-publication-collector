@@ -1,5 +1,6 @@
 /* eslint-env mocha */
 
+import { Meteor } from 'meteor/meteor';
 import { assert } from 'chai';
 import sinon from 'sinon';
 import { Mongo } from 'meteor/mongo';
@@ -28,6 +29,22 @@ describe('PublicationCollector', () => {
       const collector = new PublicationCollector();
 
       collector.collect('publication', collections => {
+        assert.typeOf(collections.documents, 'array');
+        assert.equal(collections.documents.length, 10, 'collects 10 documents');
+        done();
+      });
+    });
+
+    it('should be able to return a Promise which resolves to the collections', (done) => {
+      const collector = new PublicationCollector();
+
+      const promise = collector.collect('publication');
+
+      assert.ok(promise);
+      assert.isFunction(promise.then);
+      assert.isFunction(promise.catch);
+
+      promise.then(collections => {
         assert.typeOf(collections.documents, 'array');
         assert.equal(collections.documents.length, 10, 'collects 10 documents');
         done();
@@ -162,21 +179,22 @@ describe('PublicationCollector', () => {
       done();
     });
 
-    it('throws an error if a publication returns truthy values other than cursors or arrays', (done) => {
+    it('throws an error if a publication returns truthy values other than cursors or arrays', async () => {
       Meteor.publish('publicationReturningTruthyValue', () => {
         return true;
       });
 
       const collector = new PublicationCollector();
 
-      assert.throws(() => {
-        collector.collect('publicationReturningTruthyValue');
-      }, /Publish function can only return a Cursor or an array of Cursors/);
-
-      done();
+      try {
+        await collector.collect('publicationReturningTruthyValue');
+      } catch (ex) {
+        assert.instanceOf(ex, Error);
+        assert.match(ex.message, /Publish function can only return a Cursor or an array of Cursors/);
+      }
     });
 
-    it('stops the publication if an error is thrown in the callback', () => {
+    it('stops the publication if an error is thrown in the callback', async () => {
       const collector = new PublicationCollector();
 
       let stopMethodCalled = false;
@@ -186,7 +204,7 @@ describe('PublicationCollector', () => {
 
       let exception;
       try {
-        collector.collect('publication', collections => {
+        await collector.collect('publication', collections => {
           throw new Error('Test');
         });
       } catch (e) {
@@ -227,13 +245,16 @@ describe('PublicationCollector', () => {
 
   describe('Error', () => {
 
-    it('should throw error when .error() is called in publication', () => {
+    it('should throw error when .error() is called in publication', async () => {
       // We're not passing a user context here to trigger error.
       const collector = new PublicationCollector();
 
-      assert.throws(() => {
-        collector.collect('publicationError');
-      }, Meteor.Error, /Not authorized/);
+      try {
+        await collector.collect('publicationError');
+      } catch (ex) {
+        assert.instanceOf(ex, Meteor.Error);
+        assert.match(ex.error, /not-authorized/);
+      }
     });
   });
 

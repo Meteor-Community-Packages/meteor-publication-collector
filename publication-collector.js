@@ -24,7 +24,7 @@ export class PublicationCollector extends EventEmitter {
     this.userId = opts.userId;
     this._idFilter = {
       idStringify: MongoID.idStringify,
-      idParse: MongoID.idParse
+      idParse:     MongoID.idParse
     };
     this._isDeactivated = () => {};
 
@@ -38,35 +38,41 @@ export class PublicationCollector extends EventEmitter {
       callback = args.pop();
     }
 
-    const completeCollecting = (collections) => {
-      try {
-        if (_.isFunction(callback)) {
-          callback(collections);
+    return new Promise((resolve, reject) => {
+
+      const done = (...res) => {
+        callback && callback(...res);
+        resolve(...res);
+      };
+
+      const completeCollecting = (collections) => {
+        try {
+          done(collections);
+        } finally {
+          // stop the subscription
+          this.stop();
         }
-      } finally {
-        // stop the subscription
-        this.stop();
-      }
-    };
+      };
 
-    // adds a one time listener function for the "ready" event
-    this.once('ready', (collections) => {
-      if (this.delayInMs) {
-        Meteor.setTimeout(() => {
-          // collections is out of date, so we need to regenerate
-          collections = this._generateResponse();
+      // adds a one time listener function for the "ready" event
+      this.once('ready', (collections) => {
+        if (this.delayInMs) {
+          Meteor.setTimeout(() => {
+            // collections is out of date, so we need to regenerate
+            collections = this._generateResponse();
+            completeCollecting(collections);
+          }, this.delayInMs);
+        } else {
+          // immediately complete
           completeCollecting(collections);
-        }, this.delayInMs);
-      } else {
-        // immediately complete
-        completeCollecting(collections);
-      }
+        }
+      });
+
+      const handler = Meteor.server.publish_handlers[name];
+      const result = handler.call(this, ...args);
+
+      this._publishHandlerResult(result);
     });
-
-    const handler = Meteor.server.publish_handlers[name];
-    const result = handler.call(this, ...args);
-
-    this._publishHandlerResult(result);
   }
 
   /**
