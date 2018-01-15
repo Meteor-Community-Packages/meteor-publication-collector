@@ -1,6 +1,6 @@
 {
   "name": "publication-collector",
-  "version": "1.0.10",
+  "version": "1.1.0",
   "description": "Test a Meteor publication by collecting its output.",
   "scripts": {
     "test": "SERVER_TEST_REPORTER='dot' meteor test-packages --once --driver-package meteortesting:mocha ./",
