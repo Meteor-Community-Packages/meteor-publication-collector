@@ -1,12 +1,12 @@
 /* eslint-disable prefer-arrow-callback */
 
 Package.describe({
-  name: 'johanbrook:publication-collector',
-  version: '1.0.10',
-  summary: 'Test a Meteor publication by collecting its output.',
+  name:          'johanbrook:publication-collector',
+  version:       '1.0.10',
+  summary:       'Test a Meteor publication by collecting its output.',
   documentation: 'README.md',
-  git: 'https://github.com/johanbrook/meteor-publication-collector.git',
-  debugOnly: true
+  git:           'https://github.com/johanbrook/meteor-publication-collector.git',
+  debugOnly:     true
 });
 
 Package.onUse(function(api) {
@@ -19,27 +19,25 @@ Package.onUse(function(api) {
     'check'
   ], 'server');
 
-  api.addFiles('publication-collector.js', 'server');
-
-  api.export('PublicationCollector', 'server');
+  api.mainModule('publication-collector.js', 'server');
 });
 
 Package.onTest(function(api) {
+  Npm.depends({
+    chai:  '4.1.2',
+    sinon: '4.1.5'
+  });
+
   api.use([
     'ecmascript',
     'mongo',
     'random',
-    'dispatch:mocha',
+    'meteortesting:mocha',
     'accounts-password@1.3.1',
-    'practicalmeteor:sinon',
-    'practicalmeteor:chai@2.1.0_1',
     'underscore'
   ], 'server');
 
-  api.use('johanbrook:publication-collector');
+  api.addFiles('./tests/collections.js', 'server');
 
-  api.addFiles([
-    'tests/publications.js',
-    'tests/publication-collector.test.js'
-  ], 'server');
+  api.mainModule('publication-collector.test.js', 'server');
 });

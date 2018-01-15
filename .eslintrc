@@ -2,6 +2,8 @@
   "extends": "lookback/meteor",
 
   "globals": {
-    "PublicationCollector": true
+    "PublicationCollector": true,
+    "Documents": true,
+    "Books": true
   }
 }

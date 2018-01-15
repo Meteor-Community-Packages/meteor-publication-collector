@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { Match } from 'meteor/check';
+import { Match, check } from 'meteor/check';
 import { Mongo } from 'meteor/mongo';
 import { MongoID } from 'meteor/mongo-id';
 import { EventEmitter } from 'events';
@@ -11,7 +11,7 @@ const validMongoId = Match.OneOf(String, Mongo.ObjectID);
   meteor/meteor/packages/ddp/livedata_server.js, but instead of sending
   over a socket it just collects data.
 */
-PublicationCollector = class PublicationCollector extends EventEmitter {
+export class PublicationCollector extends EventEmitter {
 
   constructor(opts = {}) {
     super();
@@ -205,4 +205,4 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
 
     return output;
   }
-};
+}
