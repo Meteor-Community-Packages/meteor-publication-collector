@@ -61,20 +61,40 @@ const collector = new PublicationCollector(opts);
 
 An instance of `PublicationCollector` also is an `EventEmitter`, and emits a `ready` event when the publication is marked as ready.
 
-### PublicationCollector.collect
+### PublicationCollector.collect -> Promise
 
 ```js
-collector.collect(publicationName, publicationArgs..., callback);
+collector.collect(publicationName, [publicationArgs..., callback]);
 ```
 
 - `publicationName (String)`:  the name of the publication (String)
 - `publicationArgs`: zero or more arguments to the publication
-- `callback (Function)`: The function to be called when the publication is ready. The function will be provided with a `collections` object containing key:value pairs where the key is the name of a collection that the publication published and the value is an array of the documents that were published in that collection.
+- `callback (Function)`: Optional. The function to be called when the publication is ready. Will be called with a `collections` object.
+
+Returns a Promise which resolves to a `collections` object.
+
+The `collections` value is an object containing key:value pairs where the key is the name of a collection that the publication published and the value is an array of the documents that were published in that collection.
 
 ```js
 collector.collect('myPublication', firstPublicationArg, secondPublicationArg, (collections) => {
   assert.equal(collections.myCollection.length, 10);
 });
+```
+
+or use Promises:
+
+```js
+const collector = new PublicationCollector();
+
+collector.collect('myPublication')
+  .then(collections => {
+    // assertions..
+  })
+  .catch(ex => /* error handling */);
+
+// Or async/await style
+const collections = await collector.collect('myPublication');
+// assertions..
 ```
 
 ## Development
