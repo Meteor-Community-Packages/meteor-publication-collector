@@ -1,8 +1,4 @@
-/* global Documents: true, Books: true */
 /* eslint-disable prefer-arrow-callback */
-
-Documents = new Mongo.Collection('documents');
-Books = new Mongo.Collection('books');
 
 Meteor.publish('publication', function() {
   return Documents.find();

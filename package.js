@@ -2,7 +2,7 @@
 
 Package.describe({
   name: 'johanbrook:publication-collector',
-  version: '1.2.0',
+  version: '1.1.0',
   summary: 'Test a Meteor publication by collecting its output.',
   documentation: 'README.md',
   git: 'https://github.com/johanbrook/meteor-publication-collector.git',
@@ -24,9 +24,7 @@ Package.onUse(function(api) {
     'check'
   ], 'server');
 
-  api.addFiles('publication-collector.js', 'server');
-
-  api.export('PublicationCollector', 'server');
+  api.mainModule('publication-collector.js', 'server');
 });
 
 Package.onTest(function(api) {
@@ -39,10 +37,7 @@ Package.onTest(function(api) {
     'underscore'
   ], 'server');
 
-  api.use('johanbrook:publication-collector');
+  api.addFiles('./tests/collections.js', 'server');
 
-  api.addFiles([
-    'tests/publications.js',
-    'tests/publication-collector.test.js'
-  ], 'server');
+  api.mainModule('publication-collector.test.js', 'server');
 });
