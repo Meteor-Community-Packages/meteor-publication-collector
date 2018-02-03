@@ -64,6 +64,11 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
     });
 
     const handler = Meteor.server.publish_handlers[name];
+
+    if (!handler) {
+      throw new Error(`PublicationCollector: Couldn't find publication "${name}"! Did you misspell it?`);
+    }
+
     const result = handler.call(this, ...args);
 
     this._publishHandlerResult(result);
@@ -83,7 +88,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
       // check all the elements are cursors
       const areCursors = res.reduce((valid, cur) => valid && this._isCursor(cur), true);
       if (!areCursors) {
-        this.error(new Error('Publish function returned an array of non-Cursors'));
+        this.error(new Error('PublicationCollector: Publish function returned an array of non-Cursors'));
         return;
       }
       // find duplicate collection names
@@ -92,7 +97,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
         const collectionName = res[i]._getCollectionName();
         if ({}.hasOwnProperty.call(collectionNames, collectionName)) {
           this.error(new Error(
-            `Publish function returned multiple cursors for collection ${collectionName}`
+            `PublicationCollector: Publish function returned multiple cursors for collection ${collectionName}`
           ));
           return;
         }
@@ -103,7 +108,7 @@ PublicationCollector = class PublicationCollector extends EventEmitter {
       // truthy values other than cursors or arrays are probably a
       // user mistake (possible returning a Mongo document via, say,
       // `coll.findOne()`).
-      this.error(new Error('Publish function can only return a Cursor or an array of Cursors'));
+      this.error(new Error('PublicationCollector: Publish function can only return a Cursor or an array of Cursors'));
     }
 
     if (cursors.length > 0) {

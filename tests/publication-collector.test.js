@@ -1,8 +1,8 @@
 /* eslint-env mocha */
-/* global Documents, spies, Books */
+/* global Documents, Books */
 
-import { assert } from 'meteor/practicalmeteor:chai';
-import { sinon } from 'meteor/practicalmeteor:sinon';
+import { assert } from 'chai';
+import sinon from 'sinon';
 import { Mongo } from 'meteor/mongo';
 
 PublicationCollector = Package['johanbrook:publication-collector'].PublicationCollector;
@@ -20,7 +20,7 @@ describe('PublicationCollector', () => {
     assert.ok(instance);
   });
 
-  describe('Collect', () => {
+  describe('collect', () => {
 
     it('should collect documents from a publication', (done) => {
       const collector = new PublicationCollector();
@@ -30,6 +30,14 @@ describe('PublicationCollector', () => {
         assert.equal(collections.documents.length, 10, 'collects 10 documents');
         done();
       });
+    });
+
+    it('should throw error if one is trying to subscribe to non-existing publication', () => {
+      const collector = new PublicationCollector();
+
+      assert.throws(() =>
+        collector.collect('foo')
+        , /Couldn't find publication/);
     });
 
     it('should collect documents from a publication using low-level added/changed/removed interface', (done) => {
@@ -113,11 +121,11 @@ describe('PublicationCollector', () => {
 
     it('should emit ready event', () => {
       const collector = new PublicationCollector();
-
-      collector.on('ready', spies.create('ready'));
+      const spy = sinon.spy();
+      collector.on('ready', spy);
 
       collector.collect('publication');
-      assert.ok(spies.ready.calledOnce, 'ready was called');
+      assert.ok(spy.calledOnce, 'ready was called');
     });
 
     it('should pass arguments to publication', (done) => {
