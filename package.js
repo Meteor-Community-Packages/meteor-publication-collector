@@ -29,7 +29,7 @@ Package.onTest(function(api) {
     'ecmascript',
     'mongo',
     'random',
-    'dispatch:mocha',
+    'meteortesting:mocha',
     'accounts-password@1.3.1',
     'practicalmeteor:sinon',
     'practicalmeteor:chai@2.1.0_1',
