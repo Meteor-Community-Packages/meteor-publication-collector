@@ -24,7 +24,7 @@ export class PublicationCollector extends EventEmitter {
     this.userId = opts.userId;
     this._idFilter = {
       idStringify: MongoID.idStringify,
-      idParse:     MongoID.idParse
+      idParse: MongoID.idParse
     };
     this._isDeactivated = () => {};
 
@@ -36,6 +36,12 @@ export class PublicationCollector extends EventEmitter {
     // extracts optional callback from latest argument
     if (_.isFunction(args[args.length - 1])) {
       callback = args.pop();
+    }
+
+    const handler = Meteor.server.publish_handlers[name];
+
+    if (!handler) {
+      throw new Error(`PublicationCollector: Couldn't find publication "${name}"! Did you misspell it?`);
     }
 
     return new Promise((resolve, reject) => {
@@ -67,12 +73,6 @@ export class PublicationCollector extends EventEmitter {
           completeCollecting(collections);
         }
       });
-
-      const handler = Meteor.server.publish_handlers[name];
-
-      if (!handler) {
-        throw new Error(`PublicationCollector: Couldn't find publication "${name}"! Did you misspell it?`);
-      }
 
       const result = handler.call(this, ...args);
 
