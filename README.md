@@ -107,6 +107,10 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 
 ## Releases
 
+- `1.2.0`
+  - Pin versions to Meteor@>=1.3.
+  - Throw error when there's no publication for the provided name.
+  - Upgrade dependencies.
 - `1.0.10` - Always stop the publication when an error is thrown in the PublicationCollector callback. Thanks @SimonSimCity !
 - `1.0.9` - Fix bug in 1.0.8 regarding empty array return. Thanks @nkahnfr !
 - `1.0.8` - Fix support for publications returning nothing (an empty array). Thanks @ziedmahdi !
