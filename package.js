@@ -9,8 +9,13 @@ Package.describe({
   debugOnly: true
 });
 
+Npm.depends({
+  chai: '4.1.2',
+  sinon: '4.2.2'
+});
+
 Package.onUse(function(api) {
-  api.versionsFrom('1.2.0.2');
+  api.versionsFrom('1.3');
 
   api.use([
     'ecmascript',
@@ -31,8 +36,6 @@ Package.onTest(function(api) {
     'random',
     'meteortesting:mocha',
     'accounts-password@1.3.1',
-    'practicalmeteor:sinon',
-    'practicalmeteor:chai@2.1.0_1',
     'underscore'
   ], 'server');
 
