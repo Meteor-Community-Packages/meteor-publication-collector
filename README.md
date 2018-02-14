@@ -131,7 +131,7 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
   - Pin versions to Meteor@>=1.3.
   - Throw error when there's no publication for the provided name.
   - Upgrade dependencies.
-  - Add support for Promises in the `.collect()` method.
+  - Add support for Promises in the `.collect()` method. **Note:** This breaks tests that rely on errors being thrown in the `collect()` method (see [#36](https://github.com/johanbrook/meteor-publication-collector/issues/36)).
 - `1.0.10` - Always stop the publication when an error is thrown in the PublicationCollector callback. Thanks @SimonSimCity !
 - `1.0.9` - Fix bug in 1.0.8 regarding empty array return. Thanks @nkahnfr !
 - `1.0.8` - Fix support for publications returning nothing (an empty array). Thanks @ziedmahdi !
