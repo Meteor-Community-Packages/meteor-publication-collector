@@ -152,3 +152,7 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 - [x] Make tests pass.
 - [x] More docs.
 - [ ] Support Promises.
+
+## Credits
+
+This package has originally been ideated and created by [Johan Brook](https://github.com/johanbrook).
