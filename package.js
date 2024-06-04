@@ -2,7 +2,7 @@
 
 Package.describe({
   name: "johanbrook:publication-collector",
-  version: "1.2.0",
+  version: "2.0.0-rc.0",
   summary: "Test a Meteor publication by collecting its output.",
   documentation: "README.md",
   git: "https://github.com/johanbrook/meteor-publication-collector.git",
@@ -15,7 +15,7 @@ Npm.depends({
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom("1.3");
+  api.versionsFrom(["1.3", "2.8.0", "3.0-rc.0"]);
 
   api.use(["ecmascript", "underscore", "mongo", "check"], "server");
 
