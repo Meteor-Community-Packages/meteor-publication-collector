@@ -187,8 +187,8 @@ describe("PublicationCollector", () => {
       const readyCallback = sinon.spy();
       const collector = new PublicationCollector();
 
-      collector.collect("publicationReturningNothing", readyCallback);
-      assert.isTrue(readyCallback.notCalled);
+      collector.collect('publicationReturningNothing', readyCallback);
+      assert.isTrue(readyCallback.calledOnce);
 
       done();
     });

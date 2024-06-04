@@ -135,7 +135,7 @@ export class PublicationCollector extends EventEmitter {
       );
     }
 
-    if (cursors.length > 0) {
+    if (cursors.length > 0 || Array.isArray(res)) {
       try {
         // for each cursor we call _publishCursor method which starts observing the cursor and
         // publishes the results.
