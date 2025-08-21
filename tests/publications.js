@@ -1,4 +1,5 @@
 /* eslint-disable prefer-arrow-callback */
+import { Documents, Books } from './collections'
 
 Meteor.publish("publication", function () {
   return Documents.find();
@@ -8,8 +9,8 @@ Meteor.publish("publicationWithSeveralCursors", function () {
   return [Documents.find(), Books.find(), Meteor.users.find()];
 });
 
-Meteor.publish("publicationUsingLowLevelACRInterface", function () {
-  const count = Documents.find().count();
+Meteor.publish("publicationUsingLowLevelACRInterface", async function () {
+  const count = await Documents.countDocuments();
 
   Meteor.setTimeout(() => {
     this.added("counts", "Documents", { count });
@@ -17,8 +18,8 @@ Meteor.publish("publicationUsingLowLevelACRInterface", function () {
   }, 100);
 });
 
-Meteor.publish("publicationWithPostReadyChanges", function () {
-  const count = Documents.find().count();
+Meteor.publish("publicationWithPostReadyChanges", async function () {
+  const count = await Documents.countDocuments();
 
   this.ready();
 
