@@ -22,7 +22,7 @@ export class PublicationCollector extends EventEmitter {
     check(opts.delayInMs, Match.Optional(Match.Integer));
 
     // Object where the keys are collection names, and then the keys are _ids
-    this._documents = {};
+    this._documents = Object.create(null);
     this.unblock = () => {
     };
     this.userId = opts.userId;
@@ -125,7 +125,7 @@ export class PublicationCollector extends EventEmitter {
         return;
       }
       // find duplicate collection names
-      const collectionNames = {};
+      const collectionNames = Object.create(null);
       for (let i = 0; i < res.length; ++i) {
         const collectionName = res[i]._getCollectionName();
         if ({}.hasOwnProperty.call(collectionNames, collectionName)) {
@@ -176,10 +176,7 @@ export class PublicationCollector extends EventEmitter {
     this._ensureCollectionInRes(collection);
 
     // Make sure to ignore the _id in fields
-    if (Object.prototype.hasOwnProperty.call(this._documents, collection)) {
-      const doc = this._documents[collection];
-      doc[id] = { ...fields, _id: id };
-    }
+    this._documents[collection][id] = { ...fields, _id: id };
   }
 
   changed (collection, id, fields) {
@@ -209,10 +206,7 @@ export class PublicationCollector extends EventEmitter {
 
     this._ensureCollectionInRes(collection);
 
-    if (Object.prototype.hasOwnProperty.call(this._documents, collection)) {
-      const doc = this._documents[collection];
-      delete doc[id];
-    }
+    delete this._documents[collection][id];
 
     if (isEmpty(this._documents[collection])) {
       delete this._documents[collection];
