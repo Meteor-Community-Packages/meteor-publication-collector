@@ -5,7 +5,10 @@ import { MongoID } from "meteor/mongo-id";
 import { EventEmitter } from "events";
 
 const validMongoId = Match.OneOf(String, Mongo.ObjectID);
-const isEmpty = obj => [Object, Array].includes((obj || {}).constructor) && !Object.entries((obj || {})).length;
+const isEmpty = obj => {
+  const safeObj = obj || {};
+  return [Object, Array].includes(safeObj.constructor) && !Object.entries(safeObj).length;
+};
 
 /*
  This class describes something like Subscription in
@@ -86,7 +89,7 @@ export class PublicationCollector extends EventEmitter {
       });
 
       const result = handler.call(this, ...args);
-      const onPublish = (res) => this._publishHandlerResult(res).catch(e => reject(e))
+      const onPublish = (res) => this._publishHandlerResult(res).catch(reject);
       if (typeof result?.then === "function") {
         result.then(onPublish);
       }
@@ -173,7 +176,10 @@ export class PublicationCollector extends EventEmitter {
     this._ensureCollectionInRes(collection);
 
     // Make sure to ignore the _id in fields
-    this._documents[collection][id] = { ...fields, _id: id };
+    if (Object.prototype.hasOwnProperty.call(this._documents, collection)) {
+      const doc = this._documents[collection];
+      doc[id] = { ...fields, _id: id };
+    }
   }
 
   changed (collection, id, fields) {
@@ -182,11 +188,11 @@ export class PublicationCollector extends EventEmitter {
 
     this._ensureCollectionInRes(collection);
 
-    const existingDocument = this._documents[collection][id];
+    let existingDocument = this._documents[collection][id];
     const { _id, ...fieldsNoId } = fields;
 
     if (existingDocument) {
-      Object.assign(existingDocument, fieldsNoId);
+      existingDocument = { ...existingDocument, ...fieldsNoId };
 
       // Delete all keys that were undefined in fields (except _id)
       Object.entries(fields).forEach(([key, value]) => {
@@ -203,7 +209,10 @@ export class PublicationCollector extends EventEmitter {
 
     this._ensureCollectionInRes(collection);
 
-    delete this._documents[collection][id];
+    if (Object.prototype.hasOwnProperty.call(this._documents, collection)) {
+      const doc = this._documents[collection];
+      delete doc[id];
+    }
 
     if (isEmpty(this._documents[collection])) {
       delete this._documents[collection];

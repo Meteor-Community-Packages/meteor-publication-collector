@@ -1,4 +1,4 @@
-import { assert} from 'chai'
+import { assert } from 'chai'
 
 export const times = async (n, fn) => {
   for (let i = 0; i < n; i++) {
