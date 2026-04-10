@@ -243,11 +243,11 @@ export class PublicationCollector extends EventEmitter {
   }
 
   _ensureCollectionInRes (collection) {
-    this._documents[collection] = this._documents[collection] || {};
+    this._documents[collection] = this._documents[collection] || Object.create(null);
   }
 
   _generateResponse () {
-    const output = {};
+    const output = Object.create(null);
 
     Object.entries(this._documents).forEach(([collectionName, documents]) => {
       output[collectionName] = Object.values(documents);
