@@ -1,6 +1,5 @@
 # Publication Collector
 
-[![CircleCI](https://img.shields.io/circleci/project/johanbrook/meteor-publication-collector.svg?maxAge=2592000)]()
 
 This package makes testing publications in Meteor easier and nicer.
 
@@ -24,8 +23,8 @@ Instead of resorting to exporting or exposing your publication functions for doi
 
 ## Installation
 
-```
-meteor add johanbrook:publication-collector
+```shell
+meteor add communitypackages:publication-collector
 ```
 
 ## Usage
@@ -35,19 +34,19 @@ This package is server-only and can't be imported on the client.
 ```js
 // server/myPublication.test.js
 
-import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+import { PublicationCollector } from "meteor/communitypackages:publication-collector";
 
 describe("myPublication", function () {
-  it("should publish 10 documents", function (done) {
+  it("should publish 10 documents", async function () {
     const collector = new PublicationCollector({ userId: Random.id() });
 
-    collector.collect(
+    await collector.collect(
       "myPublication",
       firstPublicationArg,
       secondPublicationArg,
+      // callback is optional but supported for backwards compatibility
       (collections) => {
         assert.equal(collections.myCollection.length, 10);
-        done();
       }
     );
   });
@@ -82,7 +81,7 @@ Returns a Promise which resolves to a `collections` object.
 The `collections` value is an object containing key:value pairs where the key is the name of a collection that the publication published and the value is an array of the documents that were published in that collection.
 
 ```js
-collector.collect(
+await collector.collect(
   "myPublication",
   firstPublicationArg,
   secondPublicationArg,
@@ -110,7 +109,7 @@ const collections = await collector.collect('myPublication');
 
 ## Development
 
-```
+```shell
 npm install
 ```
 
@@ -120,13 +119,13 @@ Follow `.eslintrc`
 
 Run tests once with
 
-```
+```shell
 npm test
 ```
 
 Run tests in watch mode (in console) with
 
-```
+```shell
 npm run test:dev
 ```
 
@@ -138,6 +137,11 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
 
 ## Releases
 
+- `2.0.0`
+  - Full update to Meteor@3.0.
+  - Remove support for Meteor 1 and 2 (not applicable anymore).
+  - full async support
+  - remove underscore
 - `1.2.0`
   - Add support for async publication
 - `1.1.0`
@@ -160,12 +164,8 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
   - Accept `Mongo.ObjectID` as `_id` attribute ([#8](https://github.com/johanbrook/meteor-publication-collector/issues/8)).
 - `1.0.0` - First public release.
 
-## To do
-
-- [x] Make tests pass.
-- [x] More docs.
-- [ ] Support Promises.
 
 ## Credits
 
 This package has originally been ideated and created by [Johan Brook](https://github.com/johanbrook).
+It is now maintained by the Meteor Community Packages.

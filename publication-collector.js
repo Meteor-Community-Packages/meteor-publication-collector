@@ -5,35 +5,41 @@ import { MongoID } from "meteor/mongo-id";
 import { EventEmitter } from "events";
 
 const validMongoId = Match.OneOf(String, Mongo.ObjectID);
+const isEmpty = obj => {
+  const safeObj = obj || {};
+  return [Object, Array].includes(safeObj.constructor) && !Object.entries(safeObj).length;
+};
 
 /*
-  This class describes something like Subscription in
-  meteor/meteor/packages/ddp/livedata_server.js, but instead of sending
-  over a socket it just collects data.
-*/
+ This class describes something like Subscription in
+ meteor/meteor/packages/ddp/livedata_server.js, but instead of sending
+ over a socket it just collects data.
+ */
 export class PublicationCollector extends EventEmitter {
-  constructor(opts = {}) {
+  constructor (opts = {}) {
     super();
     check(opts.userId, Match.Optional(String));
     check(opts.delayInMs, Match.Optional(Match.Integer));
 
     // Object where the keys are collection names, and then the keys are _ids
-    this._documents = {};
-    this.unblock = () => {};
+    this._documents = Object.create(null);
+    this.unblock = () => {
+    };
     this.userId = opts.userId;
     this._idFilter = {
       idStringify: MongoID.idStringify,
-      idParse: MongoID.idParse,
+      idParse: MongoID.idParse
     };
-    this._isDeactivated = () => {};
+    this._isDeactivated = () => {
+    };
 
     this.delayInMs = opts.delayInMs;
   }
 
-  collect(name, ...args) {
+  collect (name, ...args) {
     let callback;
     // extracts optional callback from latest argument
-    if (_.isFunction(args[args.length - 1])) {
+    if (typeof (args[args.length - 1]) === 'function') {
       callback = args.pop();
     }
 
@@ -47,8 +53,15 @@ export class PublicationCollector extends EventEmitter {
 
     return new Promise((resolve, reject) => {
       const done = (...res) => {
-        callback && callback(...res);
-        resolve(...res);
+        if (callback) {
+          try {
+            callback(...res);
+          } catch (e) {
+            // if the callback throws an error, we reject the promise
+            return reject(e);
+          }
+        }
+        return resolve(...res);
       };
 
       const completeCollecting = (collections) => {
@@ -68,19 +81,20 @@ export class PublicationCollector extends EventEmitter {
             collections = this._generateResponse();
             completeCollecting(collections);
           }, this.delayInMs);
-        } else {
+        }
+        else {
           // immediately complete
           completeCollecting(collections);
         }
       });
 
       const result = handler.call(this, ...args);
+      const onPublish = (res) => this._publishHandlerResult(res).catch(reject);
       if (typeof result?.then === "function") {
-        result.then((resolvedResult) => {
-          this._publishHandlerResult(resolvedResult);
-        });
-      } else {
-        this._publishHandlerResult(result);
+        result.then(onPublish);
+      }
+      else {
+        onPublish(result);
       }
     });
   }
@@ -89,13 +103,14 @@ export class PublicationCollector extends EventEmitter {
    * Reproduces "_publishHandlerResult" processing
    * @see {@link https://github.com/meteor/meteor/blob/master/packages/ddp-server/livedata_server.js#L1045}
    */
-  async _publishHandlerResult(res) {
+  async _publishHandlerResult (res) {
     const cursors = [];
 
     // publication handlers can return a collection cursor, an array of cursors or nothing.
     if (this._isCursor(res)) {
       cursors.push(res);
-    } else if (Array.isArray(res)) {
+    }
+    else if (Array.isArray(res)) {
       // check all the elements are cursors
       const areCursors = res.reduce(
         (valid, cur) => valid && this._isCursor(cur),
@@ -110,7 +125,7 @@ export class PublicationCollector extends EventEmitter {
         return;
       }
       // find duplicate collection names
-      const collectionNames = {};
+      const collectionNames = Object.create(null);
       for (let i = 0; i < res.length; ++i) {
         const collectionName = res[i]._getCollectionName();
         if ({}.hasOwnProperty.call(collectionNames, collectionName)) {
@@ -124,7 +139,8 @@ export class PublicationCollector extends EventEmitter {
         collectionNames[collectionName] = true;
         cursors.push(res[i]);
       }
-    } else if (res) {
+    }
+    else if (res) {
       // truthy values other than cursors or arrays are probably a
       // user mistake (possible returning a Mongo document via, say,
       // `coll.findOne()`).
@@ -153,31 +169,34 @@ export class PublicationCollector extends EventEmitter {
     }
   }
 
-  added(collection, id, fields) {
+  added (collection, id, fields) {
     check(collection, String);
     check(id, validMongoId);
+    this._assertSafeKey(collection);
+    this._assertSafeKey(String(id));
 
     this._ensureCollectionInRes(collection);
 
     // Make sure to ignore the _id in fields
-    const addedDocument = _.extend({ _id: id }, _.omit(fields, "_id"));
-    this._documents[collection][id] = addedDocument;
+    this._documents[collection][id] = { ...fields, _id: id };
   }
 
-  changed(collection, id, fields) {
+  changed (collection, id, fields) {
     check(collection, String);
     check(id, validMongoId);
+    this._assertSafeKey(collection);
+    this._assertSafeKey(String(id));
 
     this._ensureCollectionInRes(collection);
 
-    const existingDocument = this._documents[collection][id];
-    const fieldsNoId = _.omit(fields, "_id");
+    let existingDocument = this._documents[collection][id];
+    const { _id, ...fieldsNoId } = fields;
 
     if (existingDocument) {
-      _.extend(existingDocument, fieldsNoId);
+      existingDocument = { ...existingDocument, ...fieldsNoId };
 
       // Delete all keys that were undefined in fields (except _id)
-      _.forEach(fields, (value, key) => {
+      Object.entries(fields).forEach(([key, value]) => {
         if (value === undefined) {
           delete existingDocument[key];
         }
@@ -185,51 +204,60 @@ export class PublicationCollector extends EventEmitter {
     }
   }
 
-  removed(collection, id) {
+  removed (collection, id) {
     check(collection, String);
     check(id, validMongoId);
+    this._assertSafeKey(collection);
+    this._assertSafeKey(String(id));
 
     this._ensureCollectionInRes(collection);
 
     delete this._documents[collection][id];
 
-    if (_.isEmpty(this._documents[collection])) {
+    if (isEmpty(this._documents[collection])) {
       delete this._documents[collection];
     }
   }
 
-  ready() {
+  ready () {
     // Synchronously calls each of the listeners registered for the "ready" event
     this.emit("ready", this._generateResponse());
   }
 
-  onStop(callback) {
+  onStop (callback) {
     // Adds a one time listener function for the "stop" event
     this.once("stop", callback);
   }
 
-  stop() {
+  stop () {
     // Synchronously calls each of the listeners registered for the "stop" event
     this.emit("stop");
   }
 
-  error(error) {
+  error (error) {
     throw error;
   }
 
-  _isCursor(c) {
+  _isCursor (c) {
     return c && c._publishCursor;
   }
 
-  _ensureCollectionInRes(collection) {
-    this._documents[collection] = this._documents[collection] || {};
+  _assertSafeKey (key) {
+    if (key === "__proto__" || key === "prototype" || key === "constructor") {
+      throw new Meteor.Error(403, "Invalid key, must not be __proto__, prototype, or constructor");
+    }
   }
 
-  _generateResponse() {
-    const output = {};
+  _ensureCollectionInRes (collection) {
+    this._assertSafeKey(collection);
+    this._documents[collection] = this._documents[collection] || Object.create(null);
+  }
 
-    _.forEach(this._documents, (documents, collectionName) => {
-      output[collectionName] = _.values(documents);
+  _generateResponse () {
+    const output = Object.create(null);
+
+    Object.entries(this._documents).forEach(([collectionName, documents]) => {
+      output[collectionName] = Object.values(documents);
     });
 
     return output;

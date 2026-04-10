@@ -1,21 +1,22 @@
 /* eslint-env mocha */
 /* global Documents, Books */
-
 import { Meteor } from "meteor/meteor";
 import { assert } from "chai";
 import sinon from "sinon";
 import { Mongo } from "meteor/mongo";
-
+import { Documents, Books } from './tests/collections'
 import "./tests/publications";
 
 // Under test
 import { PublicationCollector } from "./publication-collector";
+import { shouldThrow, times } from './tests/helpers'
+
+
 
 describe("PublicationCollector", () => {
-  afterEach(() => {
-    Documents.remove({});
-    Documents.find().fetch();
-    _.times(10, () => Documents.insert({ foo: "bar" }));
+  afterEach(async () => {
+    await Documents.removeAsync({});
+    await times(10, () => Documents.insertAsync({ foo: "bar" }));
   });
 
   it("should be able to instantiate", () => {
@@ -24,28 +25,23 @@ describe("PublicationCollector", () => {
   });
 
   describe("collect", () => {
-    it("should collect documents from a publication", (done) => {
+    it("should collect documents from a publication", async () => {
       const collector = new PublicationCollector();
-
-      collector.collect("publication", (collections) => {
-        assert.typeOf(collections.documents, "array");
-        assert.equal(collections.documents.length, 10, "collects 10 documents");
-        done();
-      });
+      const collections = await collector.collect("publication");
+      assert.typeOf(collections.documents, "array");
+      assert.equal(collections.documents.length, 10, "collects 10 documents");
     });
 
-    it("should throw error if one is trying to subscribe to non-existing publication", () => {
+    it("should throw error if one is trying to subscribe to non-existing publication", async () => {
       const collector = new PublicationCollector();
-
-      assert.throws(
-        () => collector.collect("foo"),
-        /Couldn't find publication/
-      );
+      await shouldThrow({
+        fn: () => collector.collect("foo"),
+        message: 'PublicationCollector: Couldn\'t find publication "foo"! Did you misspell it?'
+      })
     });
 
     it("should be able to return a Promise which resolves to the collections", (done) => {
       const collector = new PublicationCollector();
-
       const promise = collector.collect("publication");
 
       assert.ok(promise);
@@ -59,10 +55,9 @@ describe("PublicationCollector", () => {
       });
     });
 
-    it("should collect documents from a publication using low-level added/changed/removed interface", (done) => {
+    it("should collect documents from a publication using low-level added/changed/removed interface", async () => {
       const collector = new PublicationCollector();
-
-      collector.collect(
+      await collector.collect(
         "publicationUsingLowLevelACRInterface",
         (collections) => {
           assert.typeOf(collections.counts, "array");
@@ -70,68 +65,61 @@ describe("PublicationCollector", () => {
           assert.sameDeepMembers(collections.counts, [
             { _id: "Documents", count: 10 },
           ]);
-          done();
         }
       );
     });
 
-    it("should collect documents from a publication that makes changes after it's ready", (done) => {
+    it("should collect documents from a publication that makes changes after it's ready", async () => {
       const collector = new PublicationCollector({ delayInMs: 200 }); // add happens after 100ms
-
-      collector.collect("publicationWithPostReadyChanges", (collections) => {
+      await collector.collect("publicationWithPostReadyChanges", (collections) => {
         assert.typeOf(collections.counts, "array");
         assert.equal(collections.counts.length, 1, "collects 1 document");
         assert.sameDeepMembers(collections.counts, [
           { _id: "Documents", count: 10 },
         ]);
-        done();
       });
     });
 
-    it("should allow a ObjectID as _id", (done) => {
-      Documents.remove({});
-      Documents.insert({ _id: new Mongo.ObjectID() });
+    it("should allow a ObjectID as _id", async () => {
+      await Documents.removeAsync({});
+      await Documents.insertAsync({ _id: new Mongo.ObjectID() });
 
       const collector = new PublicationCollector();
 
-      collector.collect("publication", (collections) => {
+      await collector.collect("publication", (collections) => {
         assert.typeOf(collections.documents, "array");
         assert.equal(collections.documents.length, 1);
-        done();
       });
     });
 
-    it("should return cursor results as a dictionary, with collection names as keys", (done) => {
-      Books.remove({});
-      Meteor.users.remove({});
-
-      _.times(5, () => Books.insert({ foo: "bar" }));
-      _.times(2, () => Meteor.users.insert({ foo: "bar" }));
+    it("should return cursor results as a dictionary, with collection names as keys", async () => {
+      await Books.removeAsync({});
+      await Meteor.users.removeAsync({});
+      await times(5, () => Books.insertAsync({ foo: "bar" }));
+      await times(2, () => Meteor.users.insertAsync({ foo: "bar" }));
 
       const collector = new PublicationCollector();
 
-      collector.collect("publicationWithSeveralCursors", (collections) => {
+      await collector.collect("publicationWithSeveralCursors", (collections) => {
         assert.typeOf(collections.documents, "array");
         assert.typeOf(collections.books, "array");
         assert.typeOf(collections.users, "array");
         assert.equal(collections.documents.length, 10);
         assert.equal(collections.books.length, 5);
         assert.equal(collections.users.length, 2);
-
-        done();
       });
     });
 
-    it("should return an empty array for when there are no documents", (done) => {
-      Documents.remove({});
-      assert.equal(Documents.find().fetch().length, 0);
+    it("should return an empty array for when there are no documents", async () => {
+      await Documents.removeAsync({});
+      let count = await Documents.countDocuments({});
+      assert.equal(count, 0);
 
       const collector = new PublicationCollector();
 
-      collector.collect("publication", (collections) => {
+      await collector.collect("publication", (collections) => {
         assert.typeOf(collections.documents, "array");
         assert.equal(collections.documents.length, 0);
-        done();
       });
     });
 
@@ -145,12 +133,12 @@ describe("PublicationCollector", () => {
       });
     });
 
-    it("should emit ready event", () => {
+    it("should emit ready event", async () => {
       const collector = new PublicationCollector();
       const spy = sinon.spy();
       collector.on("ready", spy);
 
-      collector.collect("publication");
+      await collector.collect("publication");
       assert.ok(spy.calledOnce, "ready was called");
     });
 
@@ -179,7 +167,7 @@ describe("PublicationCollector", () => {
       collector.collect("publicationWithOptionalArg");
     });
 
-    it("should support publications that are returning nothing", (done) => {
+    it("should support publications that are returning nothing", async () => {
       Meteor.publish("publicationReturningNothing", () => {
         return [];
       });
@@ -187,10 +175,8 @@ describe("PublicationCollector", () => {
       const readyCallback = sinon.spy();
       const collector = new PublicationCollector();
 
-      collector.collect('publicationReturningNothing', readyCallback);
+      await collector.collect('publicationReturningNothing', readyCallback);
       assert.isTrue(readyCallback.calledOnce);
-
-      done();
     });
 
     it("throws an error if a publication returns truthy values other than cursors or arrays", async () => {
@@ -221,7 +207,7 @@ describe("PublicationCollector", () => {
 
       let exception;
       try {
-        await collector.collect("publication", (collections) => {
+        await collector.collect("publication", () => {
           throw new Error("Test");
         });
       } catch (e) {
@@ -256,11 +242,11 @@ describe("PublicationCollector", () => {
   });
 
   describe("Removed", () => {
-    it("should remove a document to the local data store", () => {
+    it("should remove a document to the local data store", async () => {
       const collector = new PublicationCollector();
 
-      const doc = Documents.findOne();
-      collector.collect("publication");
+      const doc = await Documents.findOneAsync();
+      await collector.collect("publication");
       collector.removed("documents", doc._id);
 
       assert.notOk(collector._documents.documents[doc._id]);
