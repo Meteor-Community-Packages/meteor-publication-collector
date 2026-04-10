@@ -2,7 +2,7 @@
 
 Package.describe({
   name: "communitypackages:publication-collector",
-  version: "2.0.0-rc.1",
+  version: "2.0.0-rc.2",
   summary: "Test a Meteor publication by collecting its output.",
   documentation: "README.md",
   git: "https://github.com/johanbrook/meteor-publication-collector.git",
@@ -17,10 +17,6 @@ Package.onUse(function (api) {
 
 Package.onTest(function (api) {
   api.versionsFrom(["3.0"]);
-  Npm.depends({
-    chai: "4.1.2",
-    sinon: "4.2.2",
-  });
   api.use(
     [
       "ecmascript",

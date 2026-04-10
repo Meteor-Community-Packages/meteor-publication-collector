@@ -5,7 +5,9 @@
   "scripts": {
     "test": "SERVER_TEST_REPORTER='dot' meteor test-packages --once --driver-package meteortesting:mocha ./",
     "test:dev": "TEST_WATCH=1 meteor test-packages --port 3050 --driver-package meteortesting:mocha ./",
-    "lint": "eslint --format=node_modules/eslint-formatter-pretty ."
+    "test:ci": "TEST_CLIENT=0 meteor test-packages --once --driver-package meteortesting:mocha ./",
+    "lint": "npx @biomejs/biome check ./**/*.js",
+    "lint:fix": "npx @biomejs/biome check --write ./**/*.js"
   },
   "repository": {
     "type": "git",
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.11",
-    "puppeteer": "^24.40.0"
+    "chai": "^6.2.2",
+    "sinon": "^21.1.0"
   }
 }
