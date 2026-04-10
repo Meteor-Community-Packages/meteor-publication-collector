@@ -244,7 +244,7 @@ export class PublicationCollector extends EventEmitter {
 
   _assertSafeKey (key) {
     if (key === "__proto__" || key === "prototype" || key === "constructor") {
-      throw new Meteor.Error(403, "Invalid key");
+      throw new Meteor.Error(403, "Invalid key, must not be __proto__, prototype, or constructor");
     }
   }
 
