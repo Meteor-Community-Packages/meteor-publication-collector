@@ -1,6 +1,5 @@
 # Publication Collector
 
-[![CircleCI](https://img.shields.io/circleci/project/johanbrook/meteor-publication-collector.svg?maxAge=2592000)]()
 
 This package makes testing publications in Meteor easier and nicer.
 
@@ -24,7 +23,7 @@ Instead of resorting to exporting or exposing your publication functions for doi
 
 ## Installation
 
-```
+```shell
 meteor add communitypackages:publication-collector
 ```
 
@@ -110,7 +109,7 @@ const collections = await collector.collect('myPublication');
 
 ## Development
 
-```
+```shell
 npm install
 ```
 
@@ -120,13 +119,13 @@ Follow `.eslintrc`
 
 Run tests once with
 
-```
+```shell
 npm test
 ```
 
 Run tests in watch mode (in console) with
 
-```
+```shell
 npm run test:dev
 ```
 
@@ -165,12 +164,8 @@ Based on https://github.com/stubailo/meteor-rest/blob/devel/packages/rest/http-s
   - Accept `Mongo.ObjectID` as `_id` attribute ([#8](https://github.com/johanbrook/meteor-publication-collector/issues/8)).
 - `1.0.0` - First public release.
 
-## To do
-
-- [x] Make tests pass.
-- [x] More docs.
-- [ ] Support Promises.
 
 ## Credits
 
 This package has originally been ideated and created by [Johan Brook](https://github.com/johanbrook).
+It is now maintained by the Meteor Community Packages.
