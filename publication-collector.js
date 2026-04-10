@@ -172,6 +172,8 @@ export class PublicationCollector extends EventEmitter {
   added (collection, id, fields) {
     check(collection, String);
     check(id, validMongoId);
+    this._assertSafeKey(collection);
+    this._assertSafeKey(String(id));
 
     this._ensureCollectionInRes(collection);
 
@@ -182,6 +184,8 @@ export class PublicationCollector extends EventEmitter {
   changed (collection, id, fields) {
     check(collection, String);
     check(id, validMongoId);
+    this._assertSafeKey(collection);
+    this._assertSafeKey(String(id));
 
     this._ensureCollectionInRes(collection);
 
@@ -203,6 +207,8 @@ export class PublicationCollector extends EventEmitter {
   removed (collection, id) {
     check(collection, String);
     check(id, validMongoId);
+    this._assertSafeKey(collection);
+    this._assertSafeKey(String(id));
 
     this._ensureCollectionInRes(collection);
 
@@ -236,7 +242,14 @@ export class PublicationCollector extends EventEmitter {
     return c && c._publishCursor;
   }
 
+  _assertSafeKey (key) {
+    if (key === "__proto__" || key === "prototype" || key === "constructor") {
+      throw new Meteor.Error(403, "Invalid key");
+    }
+  }
+
   _ensureCollectionInRes (collection) {
+    this._assertSafeKey(collection);
     this._documents[collection] = this._documents[collection] || Object.create(null);
   }
 
